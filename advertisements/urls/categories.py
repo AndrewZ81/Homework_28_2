@@ -3,6 +3,7 @@ from django.urls import path
 from advertisements import views
 
 urlpatterns = [
-    path('', views.CategoryView.as_view()),
+    path('', views.CategoryListView.as_view()),
     path('<int:pk>/', views.CategoryDetailView.as_view()),
+    path('create/', views.CategoryCreateView.as_view()),
 ]
