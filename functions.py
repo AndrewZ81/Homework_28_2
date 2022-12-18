@@ -11,6 +11,10 @@ from typing import Optional, List, Dict
  "advertisements.Category")
 4. convert_from_csv_to_json("data/ads.csv", "advertisements/fixtures/ads.json",
  "advertisements.Advertisement")
+ 5.convert_from_csv_to_json("data/locations.csv", "users/fixtures/locations.json",
+ "users.Location")
+ 6.convert_from_csv_to_json("data/users.csv", "users/fixtures/users.json",
+ "users.User")
 """
 
 
@@ -38,6 +42,10 @@ def convert_from_csv_to_json(csv_file_name: str, json_file_name: str, model: str
                         row["is_published"] = True
                     else:
                         row["is_published"] = False
+
+                if "location_id" in row:
+                    row["location"] = list(row["location_id"])
+                    del row["location_id"]
 
                 record: dict = {
                     "model": model,
