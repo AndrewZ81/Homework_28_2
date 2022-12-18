@@ -10,4 +10,4 @@ class Category(Model):
     def __str__(self):
         return self.name
 
-    name = CharField(max_length=200)
+    name = CharField(max_length=200, unique=True)
