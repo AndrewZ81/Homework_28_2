@@ -2,6 +2,7 @@ import collections
 import json
 from typing import List, Dict
 
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -113,7 +114,12 @@ class AdvertisementListView(ListView):
 
     def get(self, request, *args, **kwargs) -> JsonResponse:
         super().get(request, *args, **kwargs)
-        advertisements: collections.Iterable = self.object_list.order_by("-price")
+
+        paginator = Paginator(self.object_list.order_by("-price"), 5)
+        start_page = request.GET.get("page", 1)
+        paginator_object = paginator.get_page(start_page)
+
+        advertisements: collections.Iterable = paginator_object
         response_as_list: List[Dict[str, int | str]] = []
         for advertisement in advertisements:
             response_as_list.append(
@@ -124,7 +130,13 @@ class AdvertisementListView(ListView):
                     "price": advertisement.price,
                 }
             )
-        return JsonResponse(response_as_list, safe=False,
+
+        result_dict = {
+            "items": response_as_list,
+            "pages nuber": paginator.num_pages,
+            "total": paginator.count
+        }
+        return JsonResponse(result_dict, safe=False,
                             json_dumps_params={"ensure_ascii": False, "indent": 4})
 
 
