@@ -112,7 +112,7 @@ class AdvertisementListView(ListView):
 
     def get(self, request, *args, **kwargs) -> JsonResponse:
         super().get(request, *args, **kwargs)
-        advertisements: collections.Iterable = self.object_list
+        advertisements: collections.Iterable = self.object_list.order_by("-price")
         response_as_list: List[Dict[str, int | str]] = []
         for advertisement in advertisements:
             response_as_list.append(
@@ -145,7 +145,9 @@ class AdvertisementCreateView(CreateView):
             "author": advertisement.author.username,
             "price": advertisement.price,
             "description": advertisement.description,
-            "address": advertisement.author.location.name,
+            "address": [
+                _location.name for _location in advertisement.author.location.all()
+            ],
             "image": advertisement.image.url if advertisement.image else None,
             "is_published": advertisement.is_published,
             "category_id": advertisement.category.id,
@@ -169,7 +171,9 @@ class AdvertisementDetailView(DetailView):
             "author": advertisement.author.username,
             "price": advertisement.price,
             "description": advertisement.description,
-            "address": advertisement.author.location.name,
+            "address": [
+                _location.name for _location in advertisement.author.location.all()
+            ],
             "image": advertisement.image.url if advertisement.image else None,
             "is_published": advertisement.is_published,
             "category_id": advertisement.category.id,
@@ -206,7 +210,9 @@ class AdvertisementUpdateView(UpdateView):
             "author": self.object.author.username,
             "price": self.object.price,
             "description": self.object.description,
-            "address": self.object.author.location.name,
+            "address": [
+                _location.name for _location in self.object.author.location.all()
+            ],
             "image": self.image.url if self.image else None,
             "is_published": self.object.is_published,
             "category_id": self.object.category.id,
@@ -237,9 +243,9 @@ class AdvertisementUploadImage(UpdateView):
     model = Advertisement
     fields = "__all__"
 
-    def patch(self, request, *args, **kwargs) -> JsonResponse:
-        advertisement: Advertisement = self.get_object()
-        advertisement.image = request.FILES.get("image")
+    def post(self, request, *args, **kwargs):
+        self.object: Advertisement = self.get_object()
+        self.object.image = request.FILES.get("image")
         self.object.save()
 
         response_as_dict: Dict[str, int | str] = {
@@ -249,8 +255,10 @@ class AdvertisementUploadImage(UpdateView):
             "author": self.object.author.username,
             "price": self.object.price,
             "description": self.object.description,
-            "address": self.object.author.location.name,
-            "image": self.image.url if self.image else None,
+            "address": [
+                _location.name for _location in self.object.author.location.all()
+            ],
+            "image": self.object.image.url,
             "is_published": self.object.is_published,
             "category_id": self.object.category.id,
             "category_name": self.object.category.name,
