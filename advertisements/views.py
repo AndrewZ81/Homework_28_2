@@ -17,7 +17,7 @@ def show_main_page(request) -> JsonResponse:
 
 class CategoryListView(ListView):
     """
-    Отображает таблицу Category или создаёт новую запись Category
+    Отображает таблицу Category
     """
     model = Category
 
