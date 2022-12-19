@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView, CreateView
+from django.views.generic import DetailView, ListView, CreateView, UpdateView
 
 from advertisements.models import Category, Advertisement
 
@@ -50,6 +50,28 @@ class CategoryCreateView(CreateView):
         response_as_dict: Dict[str, int | str] = {
             "id": category.id,
             "name": category.name
+        }
+        return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CategoryUpdateView(UpdateView):
+    """
+    Редактирует запись Category
+    """
+    model = Category
+    fields = ["name"]
+
+    def post(self, request, *args, **kwargs) -> JsonResponse:
+        super().post(request, *args, **kwargs)
+        category_data: Dict[str, str] = json.loads(request.body)
+
+        self.object.name = category_data["name"]
+        self.object.save()
+
+        response_as_dict: Dict[str, int | str] = {
+            "id": self.object.id,
+            "name": self.object.name
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
 
