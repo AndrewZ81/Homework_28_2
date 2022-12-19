@@ -65,7 +65,8 @@ class CategoryUpdateView(UpdateView):
         super().post(request, *args, **kwargs)
         category_data: Dict[str, str] = json.loads(request.body)
 
-        self.object.name = category_data["name"]
+        if "name" in category_data:
+            self.object.name = category_data["name"]
         self.object.save()
 
         response_as_dict: Dict[str, int | str] = {
@@ -195,11 +196,16 @@ class AdvertisementUpdateView(UpdateView):
         super().post(request, *args, **kwargs)
         advertisement_data: Dict[str, str | int] = json.loads(request.body)
 
-        self.object.name = advertisement_data["name"]
-        self.object.author_id = advertisement_data["author_id"]
-        self.object.price = advertisement_data["price"]
-        self.object.description = advertisement_data["description"]
-        self.object.category_id = advertisement_data["category_id"]
+        if "name" in advertisement_data:
+            self.object.name = advertisement_data["name"]
+        if "author_id" in advertisement_data:
+            self.object.author_id = advertisement_data["author_id"]
+        if "price" in advertisement_data:
+            self.object.price = advertisement_data["price"]
+        if "description" in advertisement_data:
+            self.object.description = advertisement_data["description"]
+        if "category_id" in advertisement_data:
+            self.object.category_id = advertisement_data["category_id"]
 
         self.object.save()
 
