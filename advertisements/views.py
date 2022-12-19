@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView, CreateView, UpdateView
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
 from advertisements.models import Category, Advertisement
 
@@ -62,7 +62,7 @@ class CategoryUpdateView(UpdateView):
     model = Category
     fields = ["name"]
 
-    def post(self, request, *args, **kwargs) -> JsonResponse:
+    def patch(self, request, *args, **kwargs) -> JsonResponse:
         super().post(request, *args, **kwargs)
         category_data: Dict[str, str] = json.loads(request.body)
 
@@ -74,6 +74,20 @@ class CategoryUpdateView(UpdateView):
             "name": self.object.name
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CategoryDeleteView(DeleteView):
+    """
+    Удаляет запись Category
+    """
+    model = Category
+    success_url = "/"
+
+    def delete(self, request, *args, **kwargs) -> JsonResponse:
+        super().delete(request, *args, **kwargs)
+
+        return JsonResponse({"status": "ok"}, status=200)
 
 
 class CategoryDetailView(DetailView):
