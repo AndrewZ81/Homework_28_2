@@ -127,7 +127,7 @@ class AdvertisementListView(ListView):
                     "id": advertisement.id,
                     "name": advertisement.name,
                     "author": advertisement.author_id,
-                    "price": advertisement.price,
+                    "price": advertisement.price
                 }
             )
 
@@ -164,7 +164,7 @@ class AdvertisementCreateView(CreateView):
             "image": advertisement.image.url if advertisement.image else None,
             "is_published": advertisement.is_published,
             "category_id": advertisement.category.id,
-            "category_name": advertisement.category.name,
+            "category_name": advertisement.category.name
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
 
@@ -177,7 +177,7 @@ class AdvertisementDetailView(DetailView):
 
     def get(self, request, *args, **kwargs) -> JsonResponse:
         advertisement: Advertisement = self.get_object()
-        response: Dict[str, int | str] = {
+        response: Dict[str, int | str | dict] = {
             "id": advertisement.id,
             "name": advertisement.name,
             "author_id": advertisement.author_id,
@@ -190,7 +190,7 @@ class AdvertisementDetailView(DetailView):
             "image": advertisement.image.url if advertisement.image else None,
             "is_published": advertisement.is_published,
             "category_id": advertisement.category.id,
-            "category_name": advertisement.category.name,
+            "category_name": advertisement.category.name
         }
         return JsonResponse(response, safe=False,
                             json_dumps_params={"ensure_ascii": False, "indent": 4})
@@ -234,7 +234,7 @@ class AdvertisementUpdateView(UpdateView):
             "image": self.image.url if self.image else None,
             "is_published": self.object.is_published,
             "category_id": self.object.category.id,
-            "category_name": self.object.category.name,
+            "category_name": self.object.category.name
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
 
@@ -279,6 +279,6 @@ class AdvertisementUploadImage(UpdateView):
             "image": self.object.image.url,
             "is_published": self.object.is_published,
             "category_id": self.object.category.id,
-            "category_name": self.object.category.name,
+            "category_name": self.object.category.name
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
