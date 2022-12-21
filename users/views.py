@@ -25,7 +25,7 @@ class UserListView(ListView):
         paginator_object = paginator.get_page(start_page)
 
         users: collections.Iterable = paginator_object
-        response_as_list: List[Dict[str, int | str]] = []
+        response_as_list: List[Dict[str, int | str | dict]] = []
         for user in users:
             response_as_list.append(
                 {
@@ -37,7 +37,9 @@ class UserListView(ListView):
                     "age": user.age,
                     "locations": [
                         _location.name for _location in user.location.all()
-                    ]
+                    ],
+                    "total_advertisements":
+                        user.advertisement_set.filter(is_published=True).count()
                 }
             )
 
@@ -50,3 +52,24 @@ class UserListView(ListView):
                             json_dumps_params={"ensure_ascii": False, "indent": 4})
 
 
+class UserDetailView(DetailView):
+    """
+    Делает выборку записи из таблицы User по id
+    """
+    model = User
+
+    def get(self, request, *args, **kwargs) -> JsonResponse:
+        user: User = self.get_object()
+        response: Dict[str, int | str] = {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": user.role,
+            "age": user.age,
+            "locations": [
+                _location.name for _location in user.location.all()
+            ]
+        }
+        return JsonResponse(response, safe=False,
+                            json_dumps_params={"ensure_ascii": False, "indent": 4})
