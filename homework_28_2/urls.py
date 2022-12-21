@@ -24,6 +24,8 @@ urlpatterns = [
     path('', views.show_main_page),
     path('cat/', include("advertisements.urls.categories")),
     path('ad/', include("advertisements.urls.advertisements")),
+    path('user/', include("users.urls.users")),
+
 ]
 
 if settings.DEBUG:
