@@ -156,11 +156,20 @@ class AdvertisementCreateView(CreateView):
         author = get_object_or_404(User, username=advertisement_data["author"])
         category = get_object_or_404(Category, id=advertisement_data["category_id"])
 
-        advertisement: Advertisement = Advertisement.objects.create(**advertisement_data)
+        advertisement: Advertisement = Advertisement.objects.create(
+            name=advertisement_data.get("name"),
+            author=author,
+            price=advertisement_data.get("price"),
+            description=advertisement_data.get("description"),
+            image=advertisement_data.get("image"),
+            is_published=advertisement_data.get("is_published"),
+            category=category
+        )
+
         response_as_dict: Dict[str, int | str] = {
             "id": advertisement.id,
             "name": advertisement.name,
-            "author": author,
+            "author": author.username,
             "price": advertisement.price,
             "description": advertisement.description,
             "address": [
@@ -168,7 +177,7 @@ class AdvertisementCreateView(CreateView):
             ],
             "image": advertisement.image.url if advertisement.image else None,
             "is_published": advertisement.is_published,
-            "category": category
+            "category": category.name
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
 
@@ -214,14 +223,10 @@ class AdvertisementUpdateView(UpdateView):
 
         if "name" in advertisement_data:
             self.object.name = advertisement_data["name"]
-        if "author_id" in advertisement_data:
-            self.object.author_id = advertisement_data["author_id"]
         if "price" in advertisement_data:
             self.object.price = advertisement_data["price"]
         if "description" in advertisement_data:
             self.object.description = advertisement_data["description"]
-        if "category_id" in advertisement_data:
-            self.object.category_id = advertisement_data["category_id"]
 
         self.object.save()
 
@@ -235,7 +240,7 @@ class AdvertisementUpdateView(UpdateView):
             "address": [
                 _location.name for _location in self.object.author.location.all()
             ],
-            "image": self.image.url if self.image else None,
+            "image": self.object.image.url if self.object.image else None,
             "is_published": self.object.is_published,
             "category_id": self.object.category.id,
             "category_name": self.object.category.name
