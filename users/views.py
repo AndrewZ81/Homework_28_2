@@ -112,3 +112,17 @@ class UserCreateView(CreateView):
         }
         return JsonResponse(response, safe=False,
                             json_dumps_params={"ensure_ascii": False, "indent": 4})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UserDeleteView(DeleteView):
+    """
+    Удаляет запись User
+    """
+    model = User
+    success_url = "/"
+
+    def delete(self, request, *args, **kwargs) -> JsonResponse:
+        super().delete(request, *args, **kwargs)
+
+        return JsonResponse({"status": "ok"}, status=200)
