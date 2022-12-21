@@ -2,6 +2,7 @@ import collections
 import json
 from typing import List, Dict
 
+from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -9,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
 from advertisements.models import Category, Advertisement
+from users.models import User
 
 
 def show_main_page(request) -> JsonResponse:
@@ -150,12 +152,15 @@ class AdvertisementCreateView(CreateView):
 
     def post(self, request, *args, **kwargs) -> JsonResponse:
         advertisement_data: Dict[str, int | str] = json.loads(request.body)
+
+        author = get_object_or_404(User, username=advertisement_data["author"])
+        category = get_object_or_404(Category, id=advertisement_data["category_id"])
+
         advertisement: Advertisement = Advertisement.objects.create(**advertisement_data)
         response_as_dict: Dict[str, int | str] = {
             "id": advertisement.id,
             "name": advertisement.name,
-            "author_id": advertisement.author.id,
-            "author": advertisement.author.username,
+            "author": author,
             "price": advertisement.price,
             "description": advertisement.description,
             "address": [
@@ -163,8 +168,7 @@ class AdvertisementCreateView(CreateView):
             ],
             "image": advertisement.image.url if advertisement.image else None,
             "is_published": advertisement.is_published,
-            "category_id": advertisement.category.id,
-            "category_name": advertisement.category.name
+            "category": category
         }
         return JsonResponse(response_as_dict, json_dumps_params={"ensure_ascii": False, "indent": 4})
 
