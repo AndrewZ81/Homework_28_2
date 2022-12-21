@@ -60,6 +60,45 @@ class UserDetailView(DetailView):
 
     def get(self, request, *args, **kwargs) -> JsonResponse:
         user: User = self.get_object()
+        response: Dict[str, int | str | dict] = {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": user.role,
+            "age": user.age,
+            "locations": [
+                _location.name for _location in user.location.all()
+            ]
+        }
+        return JsonResponse(response, safe=False,
+                            json_dumps_params={"ensure_ascii": False, "indent": 4})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UserCreateView(CreateView):
+    """
+    Cоздаёт новую запись User
+    """
+    model = User
+    fields = "__all__"
+
+    def post(self, request, *args, **kwargs) -> JsonResponse:
+        user_data: Dict[str, int | str] = json.loads(request.body)
+
+        user: User = User.objects.create(
+            username=user_data.get("username"),
+            first_name=user_data.get("first_name"),
+            last_name=user_data.get("last_name"),
+            password=user_data.get("password"),
+            role=user_data.get("role"),
+            age=user_data.get("age")
+        )
+
+        for location in user_data["locations"]:
+            location, _ = Location.objects.get_or_create(name=location)
+            user.location.add(location)
+
         response: Dict[str, int | str] = {
             "id": user.id,
             "username": user.username,
