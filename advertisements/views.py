@@ -133,7 +133,7 @@ class AdvertisementListView(ListView):
 
         result_dict = {
             "items": response_as_list,
-            "pages nuber": paginator.num_pages,
+            "pages number": paginator.num_pages,
             "total": paginator.count
         }
         return JsonResponse(result_dict, safe=False,
